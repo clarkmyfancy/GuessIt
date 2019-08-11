@@ -58,15 +58,19 @@ class ScoreFragment : Fragment() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
                 .get(ScoreViewModel::class.java)
 
+        binding.scoreViewModel = viewModel
+        binding.setLifecycleOwner(this)
 
-        viewModel.score.observe(this, Observer { finalScore ->
-            binding.scoreText.text = finalScore.toString()
-        })
+//        viewModel.score.observe(this, Observer { finalScore ->
+//            binding.scoreText.text = finalScore.toString()
+//        })
 
         // Get args using by navArgs property delegate
         val scoreFragmentArgs by navArgs<ScoreFragmentArgs>()
 
-        binding.playAgainButton.setOnClickListener { viewModel.onPlayAgain() }
+        // again, can remove this because of databinding with xml views setting up onclicklisteners and
+        // calling them direclty
+// (AA)      binding.playAgainButton.setOnClickListener { viewModel.onPlayAgain() }
         viewModel.eventPlayAgain.observe(this, Observer { hasPressedPlayAgain ->
             if (hasPressedPlayAgain) {
                 findNavController().navigate(ScoreFragmentDirections.actionRestart())

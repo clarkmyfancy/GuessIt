@@ -54,27 +54,40 @@ class GameFragment : Fragment() {
         // never construct viewmodels yourslef, you have the lifecycle library do this for you
                                             // pass in the fragment
                                                         // specific viewmodel class you want
-        Log.i("GameFragment", "called ViewModelProviders.of")
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
-        binding.correctButton.setOnClickListener {
-            viewModel.onCorrect()
-        }
-        binding.skipButton.setOnClickListener {
-            viewModel.onSkip()
-        }
+        // here we are passing in the gameViewModel object to the binding object
+        // doing this allows us to get rid of some code (AA)
+        binding.gameViewModel = viewModel
+        // allows you to use LiveData to auto update the data binding layouts
+            // because of this code can do (BB)
+        binding.setLifecycleOwner(this)
 
-            // the first arg is a lifecycle owner, which is the current fragment
-            // the second arg is an ananymous observer object, will get called whenever the value changes
-        viewModel.score.observe(this, Observer { newScore ->
-            binding.scoreText.text = newScore.toString()
-                // after this is added, remove all of the calls to updateScoretext which we just removed
+        // !!!! becuase we set up the onclick listeners in the xml, we dont need these anymore!
+        // in this way, we remove the fragment as the intermediary that used to set up the onclick listeners
+        // instead we have the views (in xml) communicate direclty with the viewModel
+//  (AA)      binding.correctButton.setOnClickListener {
+//  (AA)          viewModel.onCorrect()
+//  (AA)      }
+//  (AA)      binding.skipButton.setOnClickListener {
+//  (AA)         viewModel.onSkip()
+//  (AA)     }
 
-        })
+        // becuase you added the string formatting to teh score in xml, this can now be deleted
+//            // the first arg is a lifecycle owner, which is the current fragment
+//            // the second arg is an ananymous observer object, will get called whenever the value changes
+//        viewModel.score.observe(this, Observer { newScore ->
+//            binding.scoreText.text = newScore.toString()
+//                // after this is added, remove all of the calls to updateScoretext which we just removed
+//
+//        })
 
-        viewModel.word.observe(this, Observer { newWord ->
-            binding.wordText.text = newWord
-        })
+        // can get rid of this because of setting the binding.lifecycleowner to this
+        // after changing the xml to automatically grab the most recent version of word from
+            // the LiveData word in the GameViewModel this can go away
+// (BB)       viewModel.word.observe(this, Observer { newWord ->
+// (BB)          binding.wordText.text = newWord
+// (BB)      })
 
         viewModel.eventGameFinish.observe(this, Observer { hasFinished ->
             if (hasFinished) {
@@ -83,9 +96,10 @@ class GameFragment : Fragment() {
             }
         })
 
-        viewModel.currentTime.observe(this, Observer { newElapsedTime ->
-            binding.timerText.text = DateUtils.formatElapsedTime(newElapsedTime)
-        })
+        // removed this becasue of databinding finesse #@dope shit
+//        viewModel.currentTime.observe(this, Observer { newElapsedTime ->
+//            binding.timerText.text = DateUtils.formatElapsedTime(newElapsedTime)
+//        })
 
         return binding.root
 
